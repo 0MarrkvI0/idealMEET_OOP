@@ -1,18 +1,20 @@
 package MeetingSchedule;
 
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Date;
 import java.util.Calendar;
+import java.time.LocalDate;
 
 import Users.User;
 
 public class TimeTableBoard implements TimeTable
 {
-    protected List<User> users;
+    public List<User> users;
     public List<Meeting> idealMEETs;
-    //asik pomeninm na private
-    private Date StartMeet;
-    protected Date EndMeet;
+    protected LocalDate StartMeet;
+    protected LocalDate EndMeet;
     protected int duration;
     protected int capacity;
     protected int DeadLine;
@@ -20,6 +22,32 @@ public class TimeTableBoard implements TimeTable
     public String Town;
     public String State;
 
+    public TimeTableBoard(String name, String town, String state) {
+        this.Name = name;
+        this.Town = town;
+        this.State = state;
+    }
+
+    public void setDates(String Start, String End) {
+        LocalDate currentDate = LocalDate.now(); // Get the current date
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d.M.yyyy");
+
+        this.StartMeet = LocalDate.parse(Start, formatter);
+        this.EndMeet = LocalDate.parse(End, formatter);
+
+        if (StartMeet.isBefore(currentDate) || EndMeet.isBefore(currentDate)){
+            System.out.println("Wrong date insert. Try again.");
+            setDates("23.3.2024","30.3.2024");
+        }
+        generateIdealMeet(StartMeet,EndMeet);
+    }
+    public void setInformation(int duration, int capacity, int deadline){
+        this.duration = duration;
+        this.capacity = capacity;
+        this.DeadLine = deadline;
+        this.users = new ArrayList<>();
+        this.idealMEETs = new ArrayList<>();
+    }
     // Getter methods
     @Override
     public int getDuration() {
@@ -33,41 +61,27 @@ public class TimeTableBoard implements TimeTable
     public int getDeadline() {
         return DeadLine;
     }
-    @Override
-    public void initializeTimeTable(String name, String town, String state, Date startMeet, Date endMeet, int duration, int capacity, int deadline) {
-        //this.users = users;
-        this.Name = name;
-        this.Town = town;
-        this.State = state;
-        this.StartMeet = startMeet;
-        this.EndMeet = endMeet;
-        this.duration = duration;
-        this.capacity = capacity;
-        this.DeadLine = deadline;
-    }
+
     public void addUser(User user){
         users.add(user);
     }
 
-    private void generateIdealMeet(Date startMeet, Date endMeet){
+    private void generateIdealMeet(LocalDate startMeet, LocalDate endMeet){
         final int start = 8;
         final int end = 22;
         int counterID = 1;
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(startMeet); // Set the calendar to startMeet
 
-        // Loop through each day between startMeet and endMeet
-        while (!calendar.getTime().after(endMeet)) {
-            Date currentDate = calendar.getTime();
-            System.out.println(currentDate); // Print each day
-
+        LocalDate currentDate = StartMeet;
+        while (!currentDate.isAfter(endMeet)) {
+            System.out.println(currentDate);
             for (int i = start; i <= end; i+=getDuration())
             {
-                Meeting meeting = new Meeting(currentDate,i,getDuration(),this.getCapacity(),Integer.toString(counterID));
+                Meeting meeting = new Meeting(currentDate,i,this.getDuration(),this.getCapacity(),Integer.toString(counterID));
                 idealMEETs.add(meeting);
+                System.out.println(i);
                 counterID++;
             }
-            calendar.add(Calendar.DATE, 1); // Move to the next day
+            currentDate = currentDate.plusDays(1); // Increment date by one day
         }
     }
     public int getNumberOfMembers(List<User> userList) {

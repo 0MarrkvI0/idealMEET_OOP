@@ -11,7 +11,6 @@ public interface TimeTable {
     int getDuration();
     int getCapacity();
     int getDeadline();
-    void initializeTimeTable(String name, String town, String state, Date startMeet, Date endMeet, int duration, int capacity, int deadline);
     int getNumberOfMembers(List<User> userList);
     void addUser(User user);
 }
